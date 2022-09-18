@@ -21,7 +21,7 @@ namespace WebApi.Models
         {
             HttpResponseMessage? httpResponseMessage = _usersDb.Get(guid)!;
             string responseContent = await httpResponseMessage.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<User>(responseContent)!;
+            return JsonConvert.DeserializeObject<User>(responseContent) ?? new User();
         }
 
         public async Task<IList<User>> Get(string forename, string surname)
