@@ -1,10 +1,17 @@
-﻿using WebApi.Models;
+﻿using System;
+using System.Collections.Generic;
+using WebApi.Models;
 
 namespace WebApi.Data
 {
-    public class DummyData
+    internal sealed class DummyData
     {
-        public List<User> Users = new()
+        public List<User> Users
+        {
+            get { return _users; }
+        }
+
+        private readonly List<User> _users = new()
         {
             new User { Id = Guid.Parse(Guid.NewGuid().ToString()), Forename = "Tony", Surname = "Hawk", Age = 20 },
             new User { Id = Guid.Parse(Guid.NewGuid().ToString()), Forename = "Charlie", Surname = "Day", Age = 30 },

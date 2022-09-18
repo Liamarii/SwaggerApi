@@ -1,14 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using WebApi.Models;
 using WebApi.Support;
 using Xunit;
 
-namespace WebApi.Tests
+namespace Tests.Models
 {
     public class UserDtoTests
     {
-        private static ModelValidator ModelValidator => new();
-
         [Fact]
         public void UserDto_FullUserModel_IsValid()
         {

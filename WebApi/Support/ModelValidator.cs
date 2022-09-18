@@ -1,10 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace WebApi.Support
 {
-    public class ModelValidator
+    internal sealed class ModelValidator
     {
-        public List<ValidationResult> ValidateModel(object obj)
+        private ModelValidator()
+        {
+        }
+
+        public static List<ValidationResult> ValidateModel(object obj)
         {
             ValidationContext context = new(obj, null, null);
             List<ValidationResult> results = new();
