@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WebApi.Models
 {
-    public class UserDto
+    public sealed class UserDto
     {
         [Required]
         public string? Forename { get; init; }

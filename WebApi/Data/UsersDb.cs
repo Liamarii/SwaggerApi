@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace WebApi.Data
 {
-    public class UsersDb : IUsersDb
+    internal sealed class UsersDb : IUsersDb
     {
         private readonly UserDbContext _context;
         public UsersDb(UserDbContext userDbContext)
