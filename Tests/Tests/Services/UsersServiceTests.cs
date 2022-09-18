@@ -4,8 +4,12 @@ using WebApi.Models;
 using Xunit;
 using Newtonsoft.Json;
 using System.Net;
+using System.Net.Http;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System;
 
-namespace WebApi.Tests.Services
+namespace Tests.Services
 {
     public class UsersServiceTests
     {

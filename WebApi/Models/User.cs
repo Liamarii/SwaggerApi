@@ -1,3 +1,5 @@
+using System;
+
 namespace WebApi.Models
 {
     public class User
@@ -10,7 +12,7 @@ namespace WebApi.Models
 
         public int? Age { get; init; }
 
-        public User ToUser(UserDto userDto)
+        public static User ToUser(UserDto userDto)
         {
             return new User()
             {

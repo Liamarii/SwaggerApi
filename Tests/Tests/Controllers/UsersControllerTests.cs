@@ -5,8 +5,12 @@ using Xunit;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using WebApi.Services;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System;
+using System.Linq;
 
-namespace WebApi.Tests
+namespace Tests.Controllers
 {
     public class UsersControllerTests
     {

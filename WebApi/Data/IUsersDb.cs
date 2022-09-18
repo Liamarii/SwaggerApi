@@ -1,4 +1,6 @@
-﻿using WebApi.Models;
+﻿using System;
+using System.Net.Http;
+using WebApi.Models;
 
 namespace WebApi.Data
 {

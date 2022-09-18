@@ -1,14 +1,11 @@
-﻿using WebApi.Models;
+﻿using System;
+using WebApi.Models;
 using Xunit;
 
-namespace WebApi.Tests
+namespace Tests.Models
 {
     public class UserTests
     {
-        private readonly User _sut;
-
-        public UserTests() => _sut = new();
-
         [Fact]
         public void ToUserFromUserDto_OutputsExpectedUser()
         {
@@ -21,7 +18,7 @@ namespace WebApi.Tests
             };
 
             //Act
-            User user = _sut.ToUser(userDto);
+            User user = User.ToUser(userDto);
 
             //Assert
             Assert.Equal(user?.Forename, userDto.Forename);

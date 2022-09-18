@@ -1,6 +1,9 @@
 ﻿using System.Net;
 using WebApi.Models;
 using Newtonsoft.Json;
+using System.Net.Http;
+using System;
+using System.Linq;
 
 namespace WebApi.Data
 {
@@ -44,7 +47,7 @@ namespace WebApi.Data
 
         public HttpResponseMessage Insert(UserDto userDto)
         {
-            User user = new User().ToUser(userDto);
+            User user = User.ToUser(userDto);
 
             if(_context.Users != null && !_context.Users.Contains(user))
             {
