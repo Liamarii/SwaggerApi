@@ -8,7 +8,7 @@ using WebApi.Services;
 
 namespace WebApi.Models
 {
-    public class UsersService : IUsersService
+    internal sealed class UsersService : IUsersService
     {
         private readonly IUsersDb _usersDb;
 

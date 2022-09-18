@@ -4,7 +4,7 @@ using WebApi.Models;
 
 namespace WebApi.Data
 {
-    public interface IUsersDb
+    internal interface IUsersDb
     {
         public HttpResponseMessage Get();
 

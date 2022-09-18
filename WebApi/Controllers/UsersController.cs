@@ -11,7 +11,7 @@ namespace WebApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class UsersController : ControllerBase
+    public sealed class UsersController : ControllerBase
     {
         private readonly IUsersService _usersService;
 

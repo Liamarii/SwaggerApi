@@ -2,7 +2,7 @@ using System;
 
 namespace WebApi.Models
 {
-    public class User
+    public sealed class User
     {
         public Guid Id { get; init; }
 
