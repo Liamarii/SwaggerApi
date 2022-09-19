@@ -11,7 +11,7 @@ using System;
 
 namespace Tests.Services
 {
-    public class UsersServiceTests
+    public sealed class UsersServiceTests
     {
         private readonly UsersService _sut;
         private readonly Mock<IUsersDb> _usersDb;

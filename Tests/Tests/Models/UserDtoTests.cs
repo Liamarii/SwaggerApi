@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Tests.Models
 {
-    public class UserDtoTests
+    public sealed class UserDtoTests
     {
         [Fact]
         public void UserDto_FullUserModel_IsValid()

@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Tests.Models
 {
-    public class UserTests
+    public sealed class UserTests
     {
         [Fact]
         public void ToUserFromUserDto_OutputsExpectedUser()

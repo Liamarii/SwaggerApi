@@ -7,9 +7,11 @@ using System.Linq;
 
 namespace WebApi.Data
 {
+    // Stryker disable all
     internal sealed class UsersDb : IUsersDb
     {
         private readonly UserDbContext _context;
+        
         public UsersDb(UserDbContext userDbContext)
         {
             _context = userDbContext;
