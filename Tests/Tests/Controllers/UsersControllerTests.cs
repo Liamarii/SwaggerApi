@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace Tests.Controllers
 {
-    public class UsersControllerTests
+    public sealed class UsersControllerTests
     {
         private readonly UsersController _sut;
         private readonly Mock<IUsersService> _usersService;

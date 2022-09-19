@@ -11,6 +11,7 @@ using WebApi.Models;
 
 namespace WebApi
 {
+    // Stryker disable all
     internal sealed class Startup
     {
         public IConfiguration Configuration { get; }
@@ -23,7 +24,7 @@ namespace WebApi
             Configuration = configuration;
         }
 
-        public void ConfigureServices(IServiceCollection services)
+        public static void ConfigureServices(IServiceCollection services)
         {
             services.AddBindings();
             services.AddControllers();
@@ -31,7 +32,7 @@ namespace WebApi
             services.AddDbContext<UserDbContext>(options => options.UseInMemoryDatabase("MyDb"));
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
+        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
             PopulateDatabase(serviceProvider.GetService<UserDbContext>()!);
             if (env.IsDevelopment())

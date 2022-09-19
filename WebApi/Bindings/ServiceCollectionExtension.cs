@@ -5,6 +5,7 @@ using WebApi.Services;
 
 namespace WebApi.Bindings
 {
+    // Stryker disable all
     public static class ServiceCollectionExtension
     {
         public static IServiceCollection AddBindings(this IServiceCollection serviceCollection)
