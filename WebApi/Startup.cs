@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using System;
 using WebApi.Bindings;
 using WebApi.Data;
@@ -28,8 +29,12 @@ namespace WebApi
         {
             services.AddBindings();
             services.AddControllers();
-            services.AddSwaggerGen();
             services.AddDbContext<UserDbContext>(options => options.UseInMemoryDatabase("MyDb"));
+            services.AddSwaggerGen(x =>
+            {
+                x.SwaggerDoc("v1", new OpenApiInfo { Title = "Users Service API", Version = "v1" });
+                x.EnableAnnotations();
+            });
         }
 
         public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
@@ -49,9 +54,9 @@ namespace WebApi
                     x.EnableTryItOutByDefault();
                 })
                 .UseEndpoints(endpoints =>
-               {
-                   endpoints.MapControllers();
-               });
+                {
+                    endpoints.MapControllers();
+                });
         }
 
         private static void PopulateDatabase(UserDbContext context)
