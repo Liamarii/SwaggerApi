@@ -3,12 +3,12 @@ using WebApi.Controllers;
 using WebApi.Models;
 using Xunit;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using WebApi.Services;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System;
-using System.Linq;
+using System.Text.Json;
+using Bogus;
 
 namespace Tests.Controllers
 {
@@ -16,11 +16,24 @@ namespace Tests.Controllers
     {
         private readonly UsersController _sut;
         private readonly Mock<IUsersService> _usersService;
+        private readonly UserDto _validUserDto;
+        private readonly User _validUser;
+        private readonly Faker _faker;
+
+        //TODO: The guard tests are missing.
 
         public UsersControllerTests()
         {
+            _faker = new();
             _usersService = new Mock<IUsersService>();
             _sut = new UsersController(_usersService.Object);
+            _validUserDto = new UserDto()
+            {
+                Forename = _faker.Person.FirstName,
+                Surname = _faker.Person.LastName,
+                Age = _faker.Random.Number(0, 99)
+            };
+            _validUser = User.ToUser(_validUserDto);
         }
 
         #region Get
@@ -34,8 +47,8 @@ namespace Tests.Controllers
                 .ReturnsAsync(users);
 
             //Act
-            var actionResult = await _sut.Get() as ObjectResult;
-            IList<User>? returnedUsers = actionResult?.Value as IList<User>;
+            var actionResult = await _sut.Get();
+            IList<User>? returnedUsers = actionResult?.Value;
 
             //Assert
             Assert.Null(returnedUsers);
@@ -51,10 +64,10 @@ namespace Tests.Controllers
                 .ReturnsAsync(users);
 
             //Act
-            IActionResult? actionResult = await _sut.Get();
+            var actionResult = await _sut.Get();
 
             //Assert
-            Assert.IsAssignableFrom<NotFoundResult>(actionResult);
+            Assert.IsAssignableFrom<NotFoundResult>(actionResult.Result);
         }
 
         [Fact]
@@ -63,12 +76,7 @@ namespace Tests.Controllers
             //Arrange
             List<User> users = new()
             {
-                new User()
-                {
-                    Age = 60,
-                    Forename = "Vic",
-                    Surname = "Reeves"
-                }
+                _validUser
             };
 
             _usersService
@@ -76,14 +84,11 @@ namespace Tests.Controllers
                 .ReturnsAsync(users);
 
             //Act
-            var actionResult = await _sut.Get() as OkObjectResult;
-            IList<User>? returnedUsers = actionResult?.Value as IList<User>;
-
-            var expected = JsonConvert.SerializeObject(users?.FirstOrDefault());
-            var actual = JsonConvert.SerializeObject(returnedUsers?.FirstOrDefault());
+            var result = await _sut.Get();
+            var resultData = (result?.Result as ObjectResult)?.Value as IList<User>;
 
             //Assert
-            Assert.Equal(expected, actual);
+            Assert.Equal(users, resultData);
         }
 
         [Fact]
@@ -92,12 +97,7 @@ namespace Tests.Controllers
             //Arrange
             List<User> users = new()
             {
-                new User()
-                {
-                    Age = 60,
-                    Forename = "Vic",
-                    Surname = "Reeves"
-                }
+                _validUser
             };
 
             _usersService
@@ -105,10 +105,10 @@ namespace Tests.Controllers
                 .ReturnsAsync(users);
 
             //Act
-            var actionResult = await _sut.Get() as ObjectResult;
+            var actionResult = await _sut.Get();
 
             //Assert
-            Assert.IsAssignableFrom<OkObjectResult>(actionResult);
+            Assert.IsAssignableFrom<OkObjectResult>(actionResult.Result);
         }
 
         [Fact]
@@ -126,12 +126,13 @@ namespace Tests.Controllers
             .ThrowsAsync(new Exception(exceptionMessage));
 
             //Act
-            var expected = JsonConvert.SerializeObject(objectResult);
-            var actual = JsonConvert.SerializeObject(await _sut.Get() as ObjectResult);
+            var response = (await _sut.Get()).Result as ObjectResult;
+            var expected = JsonSerializer.Serialize(objectResult);
+            var actual = JsonSerializer.Serialize(response);
 
             //Assert
             Assert.Equal(expected, actual);
-        } 
+        }
         #endregion
 
         #region GetById
@@ -144,8 +145,8 @@ namespace Tests.Controllers
                 .ReturnsAsync(() => null!);
 
             //Act
-            var actionResult = await _sut.Get(Guid.NewGuid()) as ObjectResult;
-            IList<User>? returnedUsers = actionResult?.Value as IList<User>;
+            var actionResult = await _sut.Get(Guid.NewGuid());
+            var returnedUsers = actionResult?.Value;
 
             //Assert
             Assert.Null(returnedUsers);
@@ -160,7 +161,7 @@ namespace Tests.Controllers
                 .ReturnsAsync(() => null!);
 
             //Act
-            IActionResult? actionResult = await _sut.Get(Guid.NewGuid());
+            var actionResult = (await _sut.Get(Guid.NewGuid())).Result;
 
             //Assert
             Assert.IsAssignableFrom<NotFoundResult>(actionResult);
@@ -182,14 +183,11 @@ namespace Tests.Controllers
                 .ReturnsAsync(() => user);
 
             //Act
-            OkObjectResult? actionResult = await _sut.Get(Guid.NewGuid()) as OkObjectResult;
-            User? returnedUsers = actionResult?.Value as User;
-
-            string? expected = JsonConvert.SerializeObject(user);
-            string? actual = JsonConvert.SerializeObject(returnedUsers);
+            var result = await _sut.Get(Guid.NewGuid());
+            var resultData = (result?.Result as ObjectResult)?.Value as User;
 
             //Assert
-            Assert.Equal(expected, actual);
+            Assert.Equal(user, resultData);
         }
 
         [Fact]
@@ -208,10 +206,10 @@ namespace Tests.Controllers
                 .ReturnsAsync(() => user);
 
             //Act
-            var actionResult = await _sut.Get(Guid.NewGuid()) as ObjectResult;
+            var actionResult = await _sut.Get(Guid.NewGuid());
 
             //Assert
-            Assert.IsAssignableFrom<OkObjectResult>(actionResult);
+            Assert.IsAssignableFrom<OkObjectResult>(actionResult.Result);
         }
 
         [Fact]
@@ -229,8 +227,9 @@ namespace Tests.Controllers
             .ThrowsAsync(new Exception(exceptionMessage));
 
             //Act
-            var expected = JsonConvert.SerializeObject(objectResult);
-            var actual = JsonConvert.SerializeObject(await _sut.Get(Guid.NewGuid()) as ObjectResult);
+            var response = (await _sut.Get(Guid.NewGuid())).Result as ObjectResult;
+            var expected = JsonSerializer.Serialize(objectResult);
+            var actual = JsonSerializer.Serialize(response);
 
             //Assert
             Assert.Equal(expected, actual);
@@ -247,8 +246,8 @@ namespace Tests.Controllers
                 .ReturnsAsync(() => null!);
 
             //Act
-            var actionResult = await _sut.Get("Bob","Loblaw") as ObjectResult;
-            IList<User>? returnedUsers = actionResult?.Value as IList<User>;
+            var actionResult = await _sut.Get("Bob", "Loblaw");
+            IList<User>? returnedUsers = actionResult?.Value;
 
             //Assert
             Assert.Null(returnedUsers);
@@ -263,10 +262,10 @@ namespace Tests.Controllers
                 .ReturnsAsync(() => null!);
 
             //Act
-            IActionResult? actionResult = await _sut.Get("Bob","Loblaw");
+            var actionResult = await _sut.Get("Bob", "Loblaw");
 
             //Assert
-            Assert.IsAssignableFrom<NotFoundResult>(actionResult);
+            Assert.IsAssignableFrom<NotFoundResult>(actionResult.Result);
         }
 
         [Fact]
@@ -274,24 +273,19 @@ namespace Tests.Controllers
         {
             List<User> users = new()
             {
-                new User()
-                {
-                    Age = 60,
-                    Forename = "Vic",
-                    Surname = "Reeves"
-                }
+                _validUser
             };
-           
+
             _usersService
                 .Setup(x => x.Get(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(users);
 
             //Act
-            var actionResult = await _sut.Get("Bob", "Loblaw") as ObjectResult;
-            List<User>? returnedUsers = actionResult?.Value as List<User>;
+            var response = await _sut.Get("aa", "bb");
+            var responseData = response.Result as ObjectResult;
 
-            string? expected = JsonConvert.SerializeObject(users);
-            string? actual = JsonConvert.SerializeObject(returnedUsers);
+            string? expected = JsonSerializer.Serialize(users);
+            string? actual = JsonSerializer.Serialize(responseData?.Value);
 
             //Assert
             Assert.Equal(expected, actual);
@@ -303,12 +297,7 @@ namespace Tests.Controllers
             //Arrange
             List<User> users = new()
             {
-                new User()
-                {
-                    Age = 60,
-                    Forename = "Vic",
-                    Surname = "Reeves"
-                }
+                _validUser
             };
 
             _usersService
@@ -316,10 +305,10 @@ namespace Tests.Controllers
                 .ReturnsAsync(users);
 
             //Act
-            var actionResult = await _sut.Get("Bob", "Loblaw") as ObjectResult;
+            var actionResult = await _sut.Get("Bob", "Loblaw");
 
             //Assert
-            Assert.IsAssignableFrom<OkObjectResult>(actionResult);
+            Assert.IsAssignableFrom<OkObjectResult>(actionResult.Result);
         }
 
         [Fact]
@@ -327,18 +316,8 @@ namespace Tests.Controllers
         {
             List<User> users = new()
             {
-                new User()
-                {
-                    Age = 60,
-                    Forename = "Vic",
-                    Surname = "Reeves"
-                },
-                new User()
-                {
-                    Age = 60,
-                    Forename = "Bob",
-                    Surname = "Mortimer"
-                }
+                _validUser,
+                _validUser
             };
 
             _usersService
@@ -346,11 +325,11 @@ namespace Tests.Controllers
                 .ReturnsAsync(users);
 
             //Act
-            var actionResult = await _sut.Get("Bob", "Loblaw") as ObjectResult;
-            List<User>? returnedUsers = actionResult?.Value as List<User>;
+            var response = await _sut.Get("aa", "bb");
+            var responseData = response.Result as ObjectResult;
 
-            string? expected = JsonConvert.SerializeObject(users);
-            string? actual = JsonConvert.SerializeObject(returnedUsers);
+            string? expected = JsonSerializer.Serialize(users);
+            string? actual = JsonSerializer.Serialize(responseData?.Value);
 
             //Assert
             Assert.Equal(expected, actual);
@@ -362,18 +341,8 @@ namespace Tests.Controllers
             //Arrange
             List<User> users = new()
             {
-                new User()
-                {
-                    Age = 60,
-                    Forename = "Vic",
-                    Surname = "Reeves"
-                },
-                new User()
-                {
-                    Age = 60,
-                    Forename = "Bob",
-                    Surname = "Mortimer"
-                }
+                _validUser,
+                _validUser
             };
 
             _usersService
@@ -381,10 +350,10 @@ namespace Tests.Controllers
                 .ReturnsAsync(users);
 
             //Act
-            var actionResult = await _sut.Get("Bob", "Loblaw") as ObjectResult;
+            var actionResult = await _sut.Get("Bob", "Loblaw");
 
             //Assert
-            Assert.IsAssignableFrom<OkObjectResult>(actionResult);
+            Assert.IsAssignableFrom<OkObjectResult>(actionResult.Result);
         }
 
         [Fact]
@@ -402,38 +371,42 @@ namespace Tests.Controllers
             .ThrowsAsync(new Exception(exceptionMessage));
 
             //Act
-            var expected = JsonConvert.SerializeObject(objectResult);
-            var actual = JsonConvert.SerializeObject(await _sut.Get("Bob", "Loblaw") as ObjectResult);
+            var response = (await _sut.Get("Bob", "Loblaw")).Result as ObjectResult;
+
+            var expected = JsonSerializer.Serialize(objectResult);
+            var actual = JsonSerializer.Serialize(response);
 
             //Assert
             Assert.Equal(expected, actual);
         }
         #endregion
 
-        #region AddUser
+        #region PostUser
         [Fact]
         public async Task AddUser_ReturnsUser_OutputsUserData()
         {
             //Arrange
-            User user = new()
+            UserDto userDto = new UserDto()
             {
-                Age = 60,
-                Forename = "Vic",
-                Surname = "Reeves"
+                Forename = "abc",
+                Surname = "def",
+                Age = 10
             };
+
+            User user = User.ToUser(userDto);
 
             _usersService
                 .Setup(x => x.Insert(It.IsAny<UserDto>()))
                 .ReturnsAsync(user);
 
             //Act
-            var actionResult = await _sut.Insert(new UserDto()) as ObjectResult;
-            User? returnedUser = actionResult?.Value as User;
+            var actionResult = await _sut.Post(userDto);
+            var returnedUser = (actionResult.Result as ObjectResult)?.Value as User;
 
             //Assert
             Assert.Equal(user.Forename, returnedUser?.Forename);
             Assert.Equal(user.Surname, returnedUser?.Surname);
-            Assert.Equal(user.Age,returnedUser?.Age);
+            Assert.Equal(user.Age, returnedUser?.Age);
             Assert.True(typeof(Guid) == returnedUser?.Id.GetType());
         }
 
@@ -446,31 +419,32 @@ namespace Tests.Controllers
                 .ReturnsAsync(() => new User());
 
             //Act
-            var actionResult = await _sut.Insert(new UserDto()) as ObjectResult;
+            var actionResult = await _sut.Post(new UserDto() { Forename = "b", Surname = "a", Age = 10 });
 
             //Assert
-            Assert.IsAssignableFrom<OkObjectResult>(actionResult);
+            Assert.IsAssignableFrom<OkObjectResult>(actionResult.Result);
         }
 
         [Theory]
-        [InlineData("Frank","string")]
-        [InlineData("string", "Reynolds")]
-        [InlineData("string", "string")]
+        [InlineData("Frank", "string", 10)]
+        [InlineData("string", "Reynolds", 20)]
+        [InlineData("string", "string", 30)]
 
-        public async Task AddUser_DefaultNameValues_OutputBadRequestResponseType(string forename, string surname)
+        public async Task AddUser_DefaultNameValues_OutputBadRequestResponseType(string forename, string surname, int age)
         {
             //Arrange
             UserDto user = new()
             {
                 Forename = forename,
-                Surname = surname
+                Surname = surname,
+                Age = age
             };
 
             //Act
-            var actionResult = await _sut.Insert(user);
+            var response = await _sut.Post(user);
 
             //Assert
-            Assert.IsAssignableFrom<BadRequestResult>(actionResult);
+            Assert.IsAssignableFrom<BadRequestResult>(response.Result);
         }
 
         [Fact]
@@ -478,6 +452,13 @@ namespace Tests.Controllers
         {
             //Arrange
             string exceptionMessage = "Exception message";
+            UserDto userDto = new()
+            {
+                Forename = "abc",
+                Surname = "def",
+                Age = 10
+            };
+
             ObjectResult? objectResult = new(exceptionMessage)
             {
                 StatusCode = 500
@@ -488,8 +469,11 @@ namespace Tests.Controllers
                 .ThrowsAsync(new Exception(exceptionMessage));
 
             //Act
-            var expected = JsonConvert.SerializeObject(objectResult);
-            var actual = JsonConvert.SerializeObject(await _sut.Insert(new UserDto()) as ObjectResult);
+            var response = await _sut.Post(userDto);
+            var responseData = response.Result as ObjectResult;
+
+            var expected = JsonSerializer.Serialize(objectResult);
+            var actual = JsonSerializer.Serialize(responseData);
 
             //Act / Assert
             Assert.Equal(expected, actual);
