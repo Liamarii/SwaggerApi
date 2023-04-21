@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WebApi.Support
 {
-    internal sealed class ModelValidator
+    internal class ModelValidator
     {
         private ModelValidator()
         {

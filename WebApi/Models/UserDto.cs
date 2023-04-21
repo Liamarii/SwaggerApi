@@ -2,15 +2,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WebApi.Models
 {
-    public sealed class UserDto
+    public class UserDto
     {
         [Required]
-        public string? Forename { get; init; }
+        public string Forename { get; init; } = null!;
 
         [Required]
-        public string? Surname { get; init; }
+        public string Surname { get; init; } = null!;
 
         [Required]
-        public int? Age { get; init; }
+        public int? Age { get; init; } = null;
     }
 }

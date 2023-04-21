@@ -1,45 +1,35 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading.Tasks;
 using WebApi.Data;
 using WebApi.Services;
 
 namespace WebApi.Models
 {
-    internal sealed class UsersService : IUsersService
+    internal class UsersService : IUsersService
     {
         private readonly IUsersDb _usersDb;
 
         public UsersService(IUsersDb usersDb) => _usersDb = usersDb;
 
-        public async Task<User> Insert(UserDto user)
+        public async Task Insert(UserDto user)
         {
-            HttpResponseMessage? httpResponseMessage = _usersDb.Insert(user);
-            string responseContent = await httpResponseMessage.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<User>(responseContent) ?? new User();
+           await _usersDb.Insert(user);
         }
 
-        public async Task<User> Get(Guid guid)
+        public async Task<User?> Get(Guid guid)
         {
-            HttpResponseMessage? httpResponseMessage = _usersDb.Get(guid)!;
-            string responseContent = await httpResponseMessage.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<User>(responseContent) ?? new User();
+            return await _usersDb.Get(guid)!;
         }
 
-        public async Task<IList<User>> Get(string forename, string surname)
+        public async Task<IList<User>?> Get(string forename, string surname)
         {
-            HttpResponseMessage httpResponseMessage = _usersDb.Get(forename, surname);
-            string responseContent = await httpResponseMessage.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<IList<User>>(responseContent) ?? new List<User>();
+            return await _usersDb.Get(forename, surname);
         }
 
-        public async Task<IList<User>> Get()
+        public async Task<IList<User>?> Get()
         {
-            HttpResponseMessage httpResponseMessage = _usersDb.Get();
-            string responseContent = await httpResponseMessage.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<IList<User>>(responseContent) ?? new List<User>();
+            return await _usersDb.Get();
         }
     }
 }

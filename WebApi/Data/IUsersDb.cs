@@ -1,17 +1,18 @@
 ﻿using System;
-using System.Net.Http;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using WebApi.Models;
 
 namespace WebApi.Data
 {
     internal interface IUsersDb
     {
-        public HttpResponseMessage Get();
+        public Task<IList<User>?> Get();
 
-        public HttpResponseMessage Get(string forename, string surname);
+        public Task<IList<User>?> Get(string forename, string surname);
 
-        public HttpResponseMessage Get(Guid guid);
+        public Task<User?> Get(Guid guid);
 
-        public HttpResponseMessage Insert(UserDto userDto);
+        public Task Insert(UserDto userDto);
     }
 }

@@ -3,7 +3,6 @@ using Microsoft.Extensions.Hosting;
 
 namespace WebApi
 {
-    // Stryker disable all
     public static class Program
     {
         public static void Main(string[] args)

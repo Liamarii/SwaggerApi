@@ -6,26 +6,28 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System;
+using System.Threading;
 using WebApi.Bindings;
 using WebApi.Data;
 using WebApi.Models;
+using WebApi.Services;
 
 namespace WebApi
 {
-    // Stryker disable all
-    internal sealed class Startup
+    public class Startup
     {
         public IConfiguration Configuration { get; }
 
-        public IHostEnvironment HostEnvironment { get; private set; }
-
-        public Startup(IConfiguration configuration, IHostEnvironment hostEnvironment)
+        public Startup(IConfiguration configuration)
         {
-            HostEnvironment = hostEnvironment;
             Configuration = configuration;
         }
 
-        public static void ConfigureServices(IServiceCollection services)
+        private static readonly ReaderWriterLockSlim _databaseLock = new();
+
+        private static bool _databasePopulated = false;
+
+        public void ConfigureServices(IServiceCollection services)
         {
             services.AddBindings();
             services.AddControllers();
@@ -37,7 +39,7 @@ namespace WebApi
             });
         }
 
-        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
             PopulateDatabase(serviceProvider.GetService<UserDbContext>()!);
             if (env.IsDevelopment())
@@ -59,13 +61,31 @@ namespace WebApi
                 });
         }
 
-        private static void PopulateDatabase(UserDbContext context)
+        public static void PopulateDatabase(UserDbContext context)
         {
-            for (int i = 0; i < new DummyData().Users.Count; i++)
+            if (!_databasePopulated)
             {
-                context.Add(new DummyData().Users[i]);
+                lock (_databaseLock)
+                {
+                    if (!_databasePopulated)
+                    {
+                        for (int i = 0; i < new DummyData().Users.Count; i++)
+                        {
+                            context.Add(new DummyData().Users[i]);
+                        }
+                        context.SaveChanges();
+                        _databasePopulated = true;
+                    }
+                }
             }
-            context.SaveChanges();
+        }
+
+        public IServiceCollection AddBindings(IServiceCollection serviceCollection)
+        {
+            serviceCollection.Clear();
+            serviceCollection.AddTransient<IUsersDb, UsersDb>();
+            serviceCollection.AddTransient<IUsersService, UsersService>();
+            return serviceCollection;
         }
     }
 }

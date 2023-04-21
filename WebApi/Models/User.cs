@@ -2,7 +2,7 @@ using System;
 
 namespace WebApi.Models
 {
-    public sealed class User
+    public class User
     {
         public Guid Id { get; init; }
 
@@ -12,7 +12,7 @@ namespace WebApi.Models
 
         public int? Age { get; init; }
 
-        public static User ToUser(UserDto userDto)
+        public static User UserDtoToUser(UserDto userDto)
         {
             return new User()
             {
