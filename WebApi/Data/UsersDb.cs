@@ -1,65 +1,84 @@
-﻿using System.Net;
-using WebApi.Models;
-using Newtonsoft.Json;
-using System.Net.Http;
+﻿using WebApi.Models;
 using System;
 using System.Linq;
+using WebApi.Exceptions;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace WebApi.Data
 {
-    // Stryker disable all
-    internal sealed class UsersDb : IUsersDb
+    public class UsersDb : IUsersDb
     {
         private readonly UserDbContext _context;
-        
+        private readonly int _randomDelay;
+
         public UsersDb(UserDbContext userDbContext)
         {
-            _context = userDbContext;
+            _randomDelay = new Random().Next(0, 3000);
+            _context = userDbContext; 
         }
 
-        public HttpResponseMessage Get()
+        public virtual async Task<IList<User>?> Get()
         {
-            return new HttpResponseMessage(HttpStatusCode.OK)
+            try
             {
-                Content = new StringContent(JsonConvert.SerializeObject(_context.Users))
-            };
-        }
-
-        public HttpResponseMessage Get(string forename, string surname)
-        {
-            var user = _context?.Users?
-                .Where(x => string.Equals(x.Forename, forename, StringComparison.CurrentCultureIgnoreCase)
-                && string.Equals(x.Surname, surname, StringComparison.CurrentCultureIgnoreCase)).ToList();
-            return new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(JsonConvert.SerializeObject(user))
-            };
-        }
-
-        public HttpResponseMessage Get(Guid guid)
-        {
-            User? user = _context?.Users?
-                .Where(x => x.Id == guid)
-                .FirstOrDefault();
-            return new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(JsonConvert.SerializeObject(user))
-            };
-        }
-
-        public HttpResponseMessage Insert(UserDto userDto)
-        {
-            User user = User.ToUser(userDto);
-
-            if(_context.Users != null && !_context.Users.Contains(user))
-            {
-                _context?.Users?.Add(user);
-                _context?.SaveChanges();
+                await Task.Delay(_randomDelay);
+                return _context?.Users?.ToList();
             }
-            return new HttpResponseMessage(HttpStatusCode.Created)
+            catch (Exception e)
             {
-                Content = new StringContent(JsonConvert.SerializeObject(user))
-            };
+                throw new DatabaseException("Error when attempting to get all users", e);
+            }
+        }
+
+        public async Task<IList<User>?> Get(string forename, string surname)
+        {
+            try
+            {
+                await Task.Delay(_randomDelay);
+                return _context?.Users?
+                .Where(user => string.Equals(user.Forename, forename, StringComparison.CurrentCultureIgnoreCase)
+                && string.Equals(user.Surname, surname, StringComparison.CurrentCultureIgnoreCase)).ToList();
+            }
+            catch (Exception e)
+            {
+                throw new DatabaseException($"Error when attempting to get all users by forname {forename} and surname {surname}", e);
+            }
+        }
+
+        public async Task<User?> Get(Guid guid)
+        {
+            try
+            {
+                await Task.Delay(_randomDelay);
+                return _context?.Users?
+                .Where(user => user.Id == guid)
+                .FirstOrDefault();
+            }
+            catch (Exception e)
+            {
+                throw new DatabaseException($"Error when attempting to get all users by guid {guid}", e);
+            }
+        }
+
+        public async Task Insert(UserDto userDto)
+        {
+            try
+            {
+                await Task.Delay(_randomDelay);
+
+                User user = User.UserDtoToUser(userDto);
+
+                if (_context.Users != null && !_context.Users.Contains(user))
+                {
+                    _context?.Users?.Add(user);
+                    _context?.SaveChanges();
+                }
+            }
+            catch (Exception e)
+            {
+                throw new DatabaseException("Error when attempting to insert new user", e);
+            }
         }
     }
 }

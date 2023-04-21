@@ -1,0 +1,13 @@
+﻿global using AutoFixture;
+global using FluentAssertions;
+global using IntegrationTests.Factories;
+global using IntegrationTests.Stubs;
+global using Microsoft.AspNetCore.Mvc.Testing;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.DependencyInjection.Extensions;
+global using System.Net;
+global using System.Net.Http.Json;
+global using WebApi;
+global using WebApi.Data;
+global using WebApi.Models;
+global using Xunit;

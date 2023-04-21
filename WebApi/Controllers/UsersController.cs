@@ -12,8 +12,10 @@ namespace WebApi.Controllers
 {
     [ApiController]
     [ApiConventionType(typeof(DefaultApiConventions))]
+    [Consumes("application/json")]
+    [Produces("application/json")]
     [Route("[controller]")]
-    public sealed class UsersController : ControllerBase
+    public class UsersController : ControllerBase
     {
         private readonly IUsersService _usersService;
 
@@ -25,8 +27,6 @@ namespace WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Consumes("application/json")]
-        [Produces("application/json")]
         [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
         public async Task<ActionResult<IList<User>>> Get()
         {
@@ -34,7 +34,7 @@ namespace WebApi.Controllers
             try
             {
                 users = await _usersService.Get();
-                if (users.Count == 0)
+                if (users == null || users?.Count == 0)
 
                 {
                     return NotFound();
@@ -42,10 +42,7 @@ namespace WebApi.Controllers
             }
             catch (Exception e)
             {
-                return new ObjectResult(e.Message)
-                {
-                    StatusCode = StatusCodes.Status500InternalServerError
-                };
+                return Problem(e.Message, statusCode: StatusCodes.Status500InternalServerError);
             }
             return Ok(users);
         }
@@ -56,8 +53,6 @@ namespace WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Consumes("application/json")]
-        [Produces("application/json")]
         [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
         public async Task<ActionResult<User>> Get([FromQuery, Required] Guid userId)
         {
@@ -72,10 +67,7 @@ namespace WebApi.Controllers
             }
             catch (Exception e)
             {
-                return new ObjectResult(e.Message)
-                {
-                    StatusCode = StatusCodes.Status500InternalServerError
-                };
+                return Problem(e.Message, statusCode: StatusCodes.Status500InternalServerError);
             }
             return Ok(user);
         }
@@ -87,8 +79,6 @@ namespace WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Consumes("application/json")]
-        [Produces("application/json")]
         [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
         public async Task<ActionResult<IList<User>>> Get([FromQuery, Required] string forename, [FromQuery, Required] string surname)
         {
@@ -103,10 +93,7 @@ namespace WebApi.Controllers
             }
             catch (Exception e)
             {
-                return new ObjectResult(e.Message)
-                {
-                    StatusCode = StatusCodes.Status500InternalServerError
-                };
+                return Problem(e.Message, statusCode: StatusCodes.Status500InternalServerError);
             }
             return Ok(users);
         }
@@ -117,12 +104,9 @@ namespace WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [Consumes("application/json")]
-        [Produces("application/json")]
         [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Post))]
         public async Task<ActionResult<User>> Post([FromBody] UserDto user)
         {
-            User response;
             ValidationContext validationContext = new(user);
             List<ValidationResult> validationResults = new();
 
@@ -133,20 +117,13 @@ namespace WebApi.Controllers
 
             try
             {
-                if (user.Forename == "string" || user.Surname == "string")
-                {
-                    return BadRequest();
-                }
-                response = await _usersService.Insert(user);
+                await _usersService.Insert(user);
             }
             catch (Exception e)
             {
-                return new ObjectResult(e.Message)
-                {
-                    StatusCode = StatusCodes.Status500InternalServerError
-                };
+                return Problem(e.Message, statusCode: StatusCodes.Status500InternalServerError);
             }
-            return Ok(response);
+            return Ok();
         }
     }
 }

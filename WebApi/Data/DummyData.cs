@@ -4,7 +4,7 @@ using WebApi.Models;
 
 namespace WebApi.Data
 {
-    internal sealed class DummyData
+    internal class DummyData
     {
         public List<User> Users
         {
