@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using WebApi.Data;
-using WebApi.Services;
-
-namespace WebApi.Models
+﻿namespace WebApi.Models
 {
-    internal class UsersService : IUsersService
+    public class UsersService : IUsersService
     {
         private readonly IUsersDb _usersDb;
 
         public UsersService(IUsersDb usersDb) => _usersDb = usersDb;
 
-        public async Task Insert(UserDto user)
+        public async Task<User?> Insert(UserDto user)
         {
-           await _usersDb.Insert(user);
+           return await _usersDb.Insert(user);
         }
 
         public async Task<User?> Get(Guid guid)

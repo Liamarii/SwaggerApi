@@ -1,17 +1,3 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
-using System;
-using System.Threading;
-using WebApi.Bindings;
-using WebApi.Data;
-using WebApi.Models;
-using WebApi.Services;
-
 namespace WebApi
 {
     public class Startup
@@ -49,6 +35,21 @@ namespace WebApi
             app
                 .UseHttpsRedirection()
                 .UseRouting()
+                .UseExceptionHandler(applicationBuilder =>
+                {
+                    applicationBuilder.Run(async context =>
+                    {
+                        context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+                        context.Response.ContentType = "application/json";
+
+                        IExceptionHandlerFeature? ex = context.Features.Get<IExceptionHandlerFeature>();
+                        if (ex != null)
+                        {
+                            string? errorMessage = JsonConvert.SerializeObject(new { error = ex.Error.Message });
+                            await context.Response.WriteAsync(errorMessage).ConfigureAwait(false);
+                        }
+                    });
+                })
                 .UseSwagger()
                 .UseSwaggerUI(x =>
                 {

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Runtime.Serialization;
-
-namespace WebApi.Exceptions
+﻿namespace WebApi.Exceptions
 {
     [Serializable]
     public class DatabaseException : Exception, ISerializable

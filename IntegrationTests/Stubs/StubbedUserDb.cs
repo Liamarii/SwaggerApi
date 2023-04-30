@@ -16,7 +16,7 @@ public class StubbedUserDb : IUsersDb
         _getStubbedData = getStubbedData ?? Task.FromResult<IList<User>?>(null);
         _getByForenameAndSurnameStubbedData = getByForenameAndSurnameStubbedData ?? Task.FromResult<IList<User>?>(null);
         _getByGuidStubbedData = getByGuidStubbedData ?? Task.FromResult<User?>(null);
-        _insertStubbedData = insertStubbedData ?? Task.CompletedTask;
+        _insertStubbedData = insertStubbedData ?? Task.FromResult<User?>(null);
     }
 
     public Task<IList<User>?> Get() => (Task<IList<User>?>) _getStubbedData;
@@ -25,5 +25,5 @@ public class StubbedUserDb : IUsersDb
 
     public Task<User?> Get(Guid guid) => (Task<User?>)_getByGuidStubbedData;
 
-    public Task Insert(UserDto userDto) => (Task)_insertStubbedData; 
+    public Task<User?> Insert(UserDto userDto) => (Task<User?>)_insertStubbedData; 
 }

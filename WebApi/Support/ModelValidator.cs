@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-
-namespace WebApi.Support
+﻿namespace WebApi.Support
 {
-    internal class ModelValidator
+    public class ModelValidator
     {
         private ModelValidator()
         {

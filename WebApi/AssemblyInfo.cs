@@ -1,6 +1,3 @@
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 // In SDK-style projects such as this one, several assembly attributes that were historically
 // defined in this file are now automatically added during build and populated with
 // values defined in project properties. For details of which attributes are included
@@ -16,6 +13,3 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM.
 
 [assembly: Guid("7b2c8eaf-df3f-4329-a4db-9a34b6137ed1")]
-[assembly: InternalsVisibleTo("UnitTests")]
-[assembly: InternalsVisibleTo("IntegrationTests")]
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 namespace WebApi.Models
 {
     public class UserDbContext : DbContext
