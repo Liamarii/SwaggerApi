@@ -1,11 +1,4 @@
-﻿using WebApi.Models;
-using System;
-using System.Linq;
-using WebApi.Exceptions;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace WebApi.Data
+﻿namespace WebApi.Data
 {
     public class UsersDb : IUsersDb
     {
@@ -61,7 +54,7 @@ namespace WebApi.Data
             }
         }
 
-        public async Task Insert(UserDto userDto)
+        public async Task<User?> Insert(UserDto userDto)
         {
             try
             {
@@ -74,6 +67,7 @@ namespace WebApi.Data
                     _context?.Users?.Add(user);
                     _context?.SaveChanges();
                 }
+                return user;
             }
             catch (Exception e)
             {

@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using WebApi.Models;
-
-namespace WebApi.Data
+﻿namespace WebApi.Data
 {
-    internal interface IUsersDb
+    public interface IUsersDb
     {
         public Task<IList<User>?> Get();
 
@@ -13,6 +8,6 @@ namespace WebApi.Data
 
         public Task<User?> Get(Guid guid);
 
-        public Task Insert(UserDto userDto);
+        public Task<User?> Insert(UserDto userDto);
     }
 }

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using WebApi.Models;
-
-namespace WebApi.Data
+﻿namespace WebApi.Data
 {
-    internal class DummyData
+    public class DummyData
     {
         public List<User> Users
         {

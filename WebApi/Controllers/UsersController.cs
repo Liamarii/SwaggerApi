@@ -1,13 +1,3 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
-using WebApi.Models;
-using WebApi.Services;
-
 namespace WebApi.Controllers
 {
     [ApiController]
@@ -54,7 +44,7 @@ namespace WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
-        public async Task<ActionResult<User>> Get([FromQuery, Required] Guid userId)
+        public async Task<ActionResult<User>> GetById([FromQuery, Required] Guid userId)
         {
             User? user;
             try
@@ -80,7 +70,7 @@ namespace WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
-        public async Task<ActionResult<IList<User>>> Get([FromQuery, Required] string forename, [FromQuery, Required] string surname)
+        public async Task<ActionResult<IList<User>>> GetByName([FromQuery, Required] string forename, [FromQuery, Required] string surname)
         {
             IList<User>? users;
             try
@@ -101,7 +91,7 @@ namespace WebApi.Controllers
         [HttpPost]
         [SwaggerOperation(Summary = "Adds a new user", Description = "Creates a new user in the database")]
         [Route("AddUser", Name = "AddNewUser")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Post))]
@@ -109,21 +99,21 @@ namespace WebApi.Controllers
         {
             ValidationContext validationContext = new(user);
             List<ValidationResult> validationResults = new();
+            User? createdUser; 
 
             if (!Validator.TryValidateObject(user, validationContext, validationResults))
             {
                 return BadRequest(validationResults);
             }
-
             try
             {
-                await _usersService.Insert(user);
+                createdUser = await _usersService.Insert(user);
             }
             catch (Exception e)
             {
                 return Problem(e.Message, statusCode: StatusCodes.Status500InternalServerError);
             }
-            return Ok();
+            return CreatedAtAction(nameof(GetById), new { userId = createdUser?.Id }, createdUser);
         }
     }
 }

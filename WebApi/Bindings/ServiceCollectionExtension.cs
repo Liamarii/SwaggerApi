@@ -1,9 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using WebApi.Data;
-using WebApi.Models;
-using WebApi.Services;
-
-namespace WebApi.Bindings
+﻿namespace WebApi.Bindings
 {
     public static class ServiceCollectionExtension
     {
