@@ -24,3 +24,5 @@ global using WebApi.Data;
 global using WebApi.Exceptions;
 global using WebApi.Models;
 global using WebApi.Services;
+global using Microsoft.Extensions.Logging;
+global using System.Net.Http;

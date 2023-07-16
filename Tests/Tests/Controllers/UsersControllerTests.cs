@@ -16,6 +16,7 @@ namespace Tests.Controllers
     {
         private readonly UsersController _sut;
         private readonly Mock<IUsersService> _usersService;
+        private readonly Mock<IDadJokesService> _dadJokesService;
         private readonly UserDto _validUserDto;
         private readonly User _validUser;
         private readonly Faker _faker;
@@ -24,7 +25,8 @@ namespace Tests.Controllers
         {
             _faker = new();
             _usersService = new Mock<IUsersService>();
-            _sut = new UsersController(_usersService.Object);
+            _dadJokesService = new Mock<IDadJokesService>();
+            _sut = new UsersController(_usersService.Object, _dadJokesService.Object);
             _validUserDto = new UserDto()
             {
                 Forename = _faker.Person.FirstName,

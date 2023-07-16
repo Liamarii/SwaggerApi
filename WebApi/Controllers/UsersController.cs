@@ -8,8 +8,13 @@ namespace WebApi.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUsersService _usersService;
+        private readonly IDadJokesService _dadJokesService;
 
-        public UsersController(IUsersService usersService) => _usersService = usersService;
+        public UsersController(IUsersService usersService, IDadJokesService dadJokesService)
+        {
+            _usersService = usersService;
+            _dadJokesService = dadJokesService;
+        }
 
         [HttpGet]
         [SwaggerOperation(Summary = "Get all users", Description = "Returns every user from the database")]
@@ -89,7 +94,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
-        [SwaggerOperation(Summary = "Adds a new user", Description = "Creates a new user in the database")]
+        [SwaggerOperation(Summary = "Adds a new user", Description = "Creates a new user in the in memory database and does input validation")]
         [Route("AddUser", Name = "AddNewUser")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
