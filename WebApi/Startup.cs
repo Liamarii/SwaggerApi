@@ -4,10 +4,7 @@ namespace WebApi
     {
         public IConfiguration Configuration { get; }
 
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        public Startup(IConfiguration configuration) => Configuration = configuration;
 
         private static readonly ReaderWriterLockSlim _databaseLock = new();
 
@@ -15,6 +12,27 @@ namespace WebApi
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHeaderPropagation(options =>
+            {
+                options.Headers.Add("PropagatedHeader");
+            });
+
+            services.AddHttpClient<IDadJokesService, DadJokesService>(client =>
+            {
+                client.DefaultRequestHeaders.Add("X-User-Agent", Configuration.GetValue<string>("RepositoryUrl"));
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.BaseAddress = new Uri(Configuration.GetValue<string>("DadJokesUrl"));
+            });
+
+            services.AddHttpClient<IDummyService, DummyService>(client => 
+            {
+                client.BaseAddress = new Uri(Configuration.GetValue<string>("ExampleSiteUrl"));
+            }).AddHeaderPropagation();
+            
+            services.AddLogging(builder =>
+            {
+                builder.AddConsole();
+            });
             services.AddBindings();
             services.AddControllers();
             services.AddDbContext<UserDbContext>(options => options.UseInMemoryDatabase("MyDb"));
@@ -22,16 +40,19 @@ namespace WebApi
             {
                 x.SwaggerDoc("v1", new OpenApiInfo { Title = "Users Service API", Version = "v1" });
                 x.EnableAnnotations();
-            });
+            });       
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
-            PopulateDatabase(serviceProvider.GetService<UserDbContext>()!);
+            PopulateDatabase(serviceProvider?.GetService<UserDbContext>());
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseHeaderPropagation();
+
             app
                 .UseHttpsRedirection()
                 .UseRouting()
@@ -62,8 +83,13 @@ namespace WebApi
                 });
         }
 
-        public static void PopulateDatabase(UserDbContext context)
+        public static void PopulateDatabase(UserDbContext? context)
         {
+            if(context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
             if (!_databasePopulated)
             {
                 lock (_databaseLock)
